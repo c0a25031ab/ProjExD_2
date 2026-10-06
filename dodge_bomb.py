@@ -60,13 +60,37 @@ def gameover(screen: pg.Surface) -> None:
     pg.display.update()
     pg.time.wait(5000)
 
+def get_kk_imgs() -> dict[tuple[int, int], pg.Surface]:
+    kk_base = pg.image.load("fig/3.png")
+
+    left = kk_base
+    right = pg.transform.flip(kk_base, True, False)
+
+    kk_imgs = {
+        (-5, 0): pg.transform.rotozoom(left, 0, 0.9),  
+        (-5,-5): pg.transform.rotozoom(left, -45, 0.9),
+        (-5,+5): pg.transform.rotozoom(left, 45, 0.9), 
+
+        (+5, 0): pg.transform.rotozoom(right, 0, 0.9),   
+        (+5,-5): pg.transform.rotozoom(right, 45, 0.9),  
+        (+5,+5): pg.transform.rotozoom(right, -45, 0.9), 
+        (0, -5): pg.transform.rotozoom(right, 90, 0.9),  
+        (0, +5): pg.transform.rotozoom(right, -90, 0.9),
+
+        (0, 0): pg.transform.rotozoom(left, 0, 0.9),
+    }
+    return kk_imgs
+
+
+
+
 
 def main():
     pg.display.set_caption("逃げろ！こうかとん")
     screen = pg.display.set_mode((WIDTH, HEIGHT))
     bg_img = pg.image.load("fig/pg_bg.jpg")
-    kk_img = pg.transform.rotozoom(pg.image.load("fig/3.png"), 0, 0.9)
-    kk_rct = kk_img.get_rect()
+    kk_imgs = get_kk_imgs()
+    kk_rct = kk_imgs[(0,0)].get_rect()
     kk_rct.center = 300, 200
 
     bb_imgs, bb_accs = init_bb_imgs()
@@ -94,12 +118,15 @@ def main():
                 sum_mv[1] += tpl[1]
 
 
+        kk_img = kk_imgs[tuple(sum_mv)]
+        
         kk_rct.move_ip(sum_mv)
         if check_bound(kk_rct) != (True,True):
             kk_rct.move_ip(-sum_mv[0],-sum_mv[1])
+            
         screen.blit(kk_img, kk_rct)
 
-        idx = min(tmr//200, 9)
+        idx = min(tmr//500, 9)
         bb_img = bb_imgs[idx]
         acc = bb_accs[idx]
         avx = vx * acc
