@@ -16,6 +16,14 @@ DELTA = {
 
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
+def check_bound(rect:pg.Rect) -> tuple[bool,bool]:
+    yoko,tate = True,True
+    if rect.left < 0 or WIDTH <rect.right:
+        yoko = False
+    if rect.top < 0 or HEIGHT < rect.bottom:
+        tate = False
+    return yoko,tate
+
 
 def main():
     pg.display.set_caption("逃げろ！こうかとん")
@@ -38,6 +46,9 @@ def main():
                 return
         screen.blit(bg_img, [0, 0]) 
 
+        if kk_rct.colliderect(bb_rct):
+            print("game over")
+            return
 
         key_lst = pg.key.get_pressed()
         sum_mv = [0, 0]
@@ -48,10 +59,18 @@ def main():
 
 
         kk_rct.move_ip(sum_mv)
+        if check_bound(kk_rct) != (True,True):
+            kk_rct.move_ip(-sum_mv[0],-sum_mv[1])
         screen.blit(kk_img, kk_rct)
 
         bb_rct.move_ip(vx, vy)
         screen.blit(bb_img, bb_rct)
+
+        yoko,tate = check_bound(bb_rct)
+        if not yoko:
+            vx *=-1
+        if not tate:
+            vy *=-1
 
 
         pg.display.update()
